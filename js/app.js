@@ -1,35 +1,90 @@
 // Enemies our player must avoid
-var Enemy = function() {
+class Enemy {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
-
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
-};
 
+    // constructor function creates an enemy instance with random speed, row, and starting point
+
+    constructor(){
+        this.sprite = 'images/enemy-bug.png';
+        this.speed = (1.5+Math.random())*100;
+        this.row = Math.floor(3*Math.random());
+        // converts the row to y coordinate
+        this.y = 50+this.row*83;
+        // randomizes starting point
+        this.x = Math.random()*-500;
+    }
 // Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+// update function moves the enemy right, or resets it back to the left side
+    update(dt){
+        this.x+=dt*this.speed;
+        if (this.x>700) {
+            this.speed+=10;
+            this.x=-100;
+            this.row = Math.floor(3*Math.random());
+            this.y = 50+this.row*83;
+        };
+    }
+// Draw the enemy on the screen, required method for game
+    render(){
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
 };
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 
+class Player {
+    // player constructor function sets the player sprite & starting point
+    constructor(){
+        this.sprite = 'images/char-boy.png';
+        this.row = 5;
+        this.column = 2;
+    }
+    // update function repositions the player according to any moves made since last update
+    update(){
+        this.x = this.column*101;
+        this.y = this.row*83-20;
+        this.render()
+        // check for impacts
+        for (let enemy of allEnemies) {
+            if (enemy.row==(this.row-1) && enemy.x>this.x-65 && enemy.x<this.x+30){
+                location.reload();
+            }
+        }
+    }
+    render(){
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
+    // handle input function changes the player object so that it will move on the next update
+    handleInput(direction){
+        if (direction=='up' && this.row !== 0) {
+            this.row-=1;
+            // checks for won game
+            if (this.row==0) {
+                winGame();
+            }
+        }else if (direction=='down' && this.row !== 5) {
+            this.row+=1;
+        }else if (direction=='left' && this.column !== 0) {
+            this.column-=1
+        }else if (direction=='right' && this.column !== 4) {
+            this.column+=1
+        }
+    }
+}
 
 // Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
 
+// Place all enemy objects in an array called allEnemies
+var allEnemies =[new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
+
+// Place the player object in a variable called player
+const player = new Player();
 
 
 // This listens for key presses and sends the keys to your
@@ -44,3 +99,7 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+function winGame() {
+    document.body.insertAdjacentHTML('afterbegin','<h1>YOU WIN!</h1>');
+}
