@@ -17,9 +17,10 @@ class Enemy {
         this.x = Math.random()*-500;
     }
 // Update the enemy's position, required method for game
-// update function moves the enemy right, or resets it back to the left side
+// update function moves the enemy right while on the screen
     update(dt){
         this.x+=dt*this.speed;
+        // when the enemy moves off screen it is moved back to the left side in a random row, and sped up slightly.
         if (this.x>700) {
             this.speed+=10;
             this.x=-100;
@@ -46,12 +47,12 @@ class Player {
         this.column = 2;
     }
     // update function repositions the player according to any moves made since last update
-    update(){
+    update(enemies){
         this.x = this.column*101;
         this.y = this.row*83-20;
         this.render()
         // check for impacts
-        for (let enemy of allEnemies) {
+        for (let enemy of enemies) {
             if (enemy.row==(this.row-1) && enemy.x>this.x-65 && enemy.x<this.x+30){
                 location.reload();
             }
